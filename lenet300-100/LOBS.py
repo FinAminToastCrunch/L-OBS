@@ -77,13 +77,13 @@ def generate_hessian_inverse_fc(hessian_inverse_path, w_layer_path, layer_input_
 			hessian_inverse = hessian_inverse - numerator * (1.00 / denominator)
 
 		if input_index % 100 == 0:
-			print '[%s] Finish processing batch %s' % (datetime.now(), input_index)
+			print('[%s] Finish processing batch %s' % (datetime.now(), input_index))
 
 	if not os.path.exists(hessian_inverse_path):
 		os.makedirs(hessian_inverse_path)
 
 	np.save(hessian_inverse_path, hessian_inverse)
-	print '[%s]Hessian Inverse Done!' % (datetime.now())
+	print('[%s]Hessian Inverse Done!' % (datetime.now()))
 
 
 def edge_cut(hessian_inverse_path, w_layer_path, b_layer_path, prune_save_path, cut_ratio):
@@ -106,21 +106,21 @@ def edge_cut(hessian_inverse_path, w_layer_path, b_layer_path, prune_save_path, 
 	sensitivity = np.array([])
 
 	hessian_inverse = np.load(hessian_inverse_path)
-	print '[%s] Hessian Inverse Done!' %datetime.now()
+	print( '[%s] Hessian Inverse Done!' %datetime.now())
 
 	gate_w = np.ones([n_hidden_1, n_hidden_2])
 	gate_b = np.ones([n_hidden_2])
 
 	max_pruned_num = int(n_hidden_1 * n_hidden_2 * cut_ratio)
-	print '[%s] Max prune number : %d' % (datetime.now(), max_pruned_num)
+	print('[%s] Max prune number : %d' % (datetime.now(), max_pruned_num))
 
 	# Calcuate sensitivity score. Refer to Eq.5.
 	for i in range(n_hidden_2):
 		sensitivity = np.hstack((sensitivity, 0.5 * (np.hstack((w_layer.T[i], b_layer[i])) ** 2) / np.diag(hessian_inverse)))
 	sorted_index = np.argsort(sensitivity)
 
-	print '[%s] Sorted index generate completed.' %datetime.now()
-	print '[%s] Starting Pruning!' %datetime.now()
+	print ('[%s] Sorted index generate completed.' %datetime.now())
+	print ('[%s] Starting Pruning!' %datetime.now())
 	hessian_inverseT = hessian_inverse.T
 
 
@@ -151,13 +151,13 @@ def edge_cut(hessian_inverse_path, w_layer_path, b_layer_path, prune_save_path, 
 		b_layer = b_layer * gate_b
 
 		if prune_count == max_pruned_num:
-			print '[%s] Have prune required weights' %datetime.now()
+			print('[%s] Have prune required weights' %datetime.now())
 			break
 			
 	# print 'Non-zeros: %d' %np.count_nonzero(w_layer)
 	# print 'weights number: %d' %w_layer.size
-	print '[%s] Prune Finish. compression ratio: %.3f' \
-		%(datetime.now(), 1 - (float(np.count_nonzero(w_layer)) / w_layer.size))
+	print ('[%s] Prune Finish. compression ratio: %.3f' \
+		%(datetime.now(), 1 - (float(np.count_nonzero(w_layer)) / w_layer.size)))
 
 	if not os.path.exists(prune_save_path):
 		os.makedirs(prune_save_path)
@@ -212,7 +212,7 @@ with tf.Session() as sess:
 		np.save('layer_inputs/fc2/batch_%d' % batch_index, layer_2_inputs)
 		np.save('layer_inputs/fc3/batch_%d' % batch_index, layer_3_inputs)
 
-print '[%s] Layer inputs generate finish.' %datetime.now()
+print ('[%s] Layer inputs generate finish.' %datetime.now())
 
 
 # Step 2: Generate Hessian inverse
